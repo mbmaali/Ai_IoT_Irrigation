@@ -1,0 +1,11 @@
+[
+  {
+    "RainingStatus": "No",
+    "Temperature": 25,
+    "StartTime": "2000-01-01 00:00:18",
+    "WateringNumber": 1,
+    "MoistureBefore": 0,
+    "MoistureAfter": 100,
+    "Timestamp": "2024-01-27T02:14:53"
+  }
+]

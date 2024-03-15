@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Watering System History</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/dashboardStyles.css">
+  
+</head>
+<body>
+    <div id="content">
+        <h1>History</h1>
+
+        <section>
+            <h2>Recent Waterings</h2>
+            <table>
+                <tr>
+                    <th>Watering Number</th>
+                    <th>Time</th>
+                    <th>Details</th>
+                </tr>
+                {% for entry in history_data %}
+                <tr>
+                    <td>{{ entry.WateringNumber }}</td>
+                    <td>{{ entry.Timestamp }}</td>
+                    <td><a href="#" onclick="openModal('detailsModal{{ loop.index }}')">View Details</a></td>
+                </tr>
+                <div id="detailsModal{{ loop.index }}" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal('detailsModal{{ loop.index }}')">&times;</span>
+                        <h2>Details for Watering {{ entry.WateringNumber }}</h2>
+                        <p>Time: {{ entry.Timestamp }}</p>
+                        <p>Moisture Before: {{ entry.MoistureBefore }}</p>
+                        <p>Moisture After: {{ entry.MoistureAfter }}</p>
+                        <p>Temperature: {{ entry.Temperature }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </table>
+        </section>
+        <section id="moisture-weather-box">
+            <div>
+                <h2>Soil Moisture</h2>
+                <p id="moisture-level">30%</p>
+            </div>
+            <div>
+                <h2>Weather Information</h2>
+                <p id="weather-info">Temperature: 25°C, Precipitation: 5mm</p>
+            </div>
+            <button id="water-pump-button" onclick="toggleWaterPump()">Toggle Water Pump</button>
+        </section>
+      
+
+        <script>
+            function openModal(modalId) {
+                var modal = document.getElementById(modalId);
+                modal.style.display = "block";
+            }
+
+            function closeModal(modalId) {
+                var modal = document.getElementById(modalId);
+                modal.style.display = "none";
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                var rows = document.querySelectorAll("tr");
+                rows.forEach(function (row, index) {
+                    if (index > 0) {
+                        row.addEventListener("click", function () {
+                            openModal('detailsModal' + (index));
+                        });
+                    }
+                });
+            });
+        </script>
+        <script>
+            function updateWeatherMoisture() {
+                // Fetch the latest weather and moisture data
+                $.ajax({
+                    url: '/get_latest_data', // Create a new route for fetching the latest data
+                    method: 'GET',
+                    success: function (data) {
+                        // Update soil moisture level
+                        $('#moisture-level').text(data.latest_moisture + '%');
+
+                        // Update weather information
+                        var weatherInfo = `Temperature: ${data.latest_weather.Temperature}°C`;
+                        $('#weather-info').text(weatherInfo);
+                    },
+                    error: function (error) {
+                        console.error('Failed to fetch latest data:', error);
+                    }
+                });
+            }
+
+            // Call the updateWeatherMoisture function when the page loads
+            $(document).ready(function () {
+                updateWeatherMoisture();
+
+                // Update every 5 seconds (adjust the interval as needed)
+                setInterval(updateWeatherMoisture, 5000);
+            });
+        </script>
+        <script>
+
+        
+            function toggleWaterPump() {
+                // Perform an asynchronous request to toggle the water pump
+                $.ajax({
+                    url: '/toggle_water_pump',  // Replace with the actual route to toggle the water pump
+                    method: 'GET',
+                    success: function (data) {
+                        console.log('Water pump toggled successfully');
+                    },
+                    error: function (error) {
+                        console.error('Failed to toggle water pump:', error);
+                    }
+                });
+            }
+        </script>
+
+    </div>
+</body>
+</html>
